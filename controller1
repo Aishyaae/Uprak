@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Models\BookingModel;
+use App\Models\RoomsModel;
+use CodeIgniter\Controller;
+
+class Booking extends Controller
+{
+    /**
+     * Display the user's bookings.
+     */
+    public function booked()
+    {
+        $user_id = session()->get('id'); // Get the logged-in user's ID
+        $bookings = (new BookingModel())->getBookingWithRoom($user_id); // Fetch user's bookings
+
+        return view('your_booking', compact('bookings')); // Load view with data
+    }
+
+    /**
+     * Save a new booking.
+     */
+    public function save()
+    {
+        // Retrieve form input values
+        $user_id = session()->get('id'); // Get the logged-in user IDwhat
+        $room_name = $this->request->getPost('room_name'); // Room name from form
+        $selectedDates = $this->request->getPost('selected_date'); // Selected date
+        $sessions = $this->request->getPost('selected_time'); // Selected session time
+        $reason = $this->request->getPost('reason'); // Reason for booking
+
+        // Validate form input (ensure required fields are filled)
+        if (!$room_name || !$selectedDates || !$sessions) {
+            return redirect()->back()->with('error', 'All fields are required.');
+        }
+
+        // Fetch room details based on the given room name
+        $room = (new RoomsModel())->where('name', $room_name)->first();
+        if (!$room) {
+            return redirect()->back()->with('error', 'Room not found.');
+        }
+
+        $sessionsString = implode(',', $sessions);
+
+        // Insert the new booking into the database
+        (new BookingModel())->insert([
+            'user_id'  => $user_id,    // Logged-in user ID
+            'room_id'  => $room['id'], // ID of the selected room
+            'date'     => $selectedDates, // Booking date
+            'sessions' => $sessionsString,   // Selected session time
+            'reason'   => $reason      // Reason for booking
+        ]);
+
+        // Redirect back to bookings page with a success message
+        return redirect()->to('/your_booking')->with('message', 'Booking successful!');
+    }
+}
