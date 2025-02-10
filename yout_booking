@@ -1,0 +1,357 @@
+<?= $this->extend('layout/template'); ?>
+
+<?= $this->section('content'); ?>
+
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Ruang 1</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            width: 100vw;
+            overflow: auto;
+        }
+
+        .container {
+            width: 100vw;
+            background: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .left,
+        .right {
+            width: 48%;
+        }
+
+        .left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .room-title {
+            font-size: 50px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2f6e21;
+        }
+
+        .slider-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .slider {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .slider img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 4 / 3;
+            flex-shrink: 0;
+            border-radius: 10px;
+        }
+
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .prev {
+            left: 10px;
+        }
+
+        .next {
+            right: 10px;
+        }
+
+        .info {
+            text-align: left;
+        }
+
+        .capacity {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: left;
+            margin: 10px 0;
+            margin-top: 90px;
+        }
+
+        .capacity img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
+        .facilities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .facility-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: left;
+            width: 45%;
+        }
+
+        .facility-item img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
+        .facility-item div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dates {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .date-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            background: transparent;
+            text-align: center;
+        }
+
+        .date-box.selected {
+            border-color: green;
+            color: green;
+        }
+
+        .schedule {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .schedule label {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            background: transparent;
+            color: black;
+            height: 100%;
+        }
+
+        input[type="checkbox"] {
+            display: none;
+        }
+
+        input[type="checkbox"]:checked+label {
+            border-color: green;
+            color: green;
+            background-color: rgba(0, 128, 0, 0.1);
+        }
+
+        .confirm {
+            width: 100%;
+            padding: 10px;
+            background-color: green;
+            color: white;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="left">
+            <div class="room-title"><?= esc($room['name']); ?></div>
+            <div class="slider-container">
+                <button class="nav-button prev" onclick="prevImage()">&#10094;</button>
+                <div class="slider" id="slider">
+                    <img src="/img/<?= $room['cover']; ?>" alt="cover">
+                    <img src="/img/<?= $room['photo1']; ?>" alt="photo 1">
+                    <img src="/img/<?= $room['photo2']; ?>" alt="photo 2">
+                </div>
+                <button class="nav-button next" onclick="nextImage()">&#10095;</button>
+                <h3>Description</h3>
+            </div>
+
+        </div>
+        <div class="right">
+            <div class="info">
+                <div class="capacity">
+                    <img src="/img/Capacity.png" alt="Capacity">
+                    <?= esc($room['capacity']); ?> people
+                </div>
+                <h3>Facilities</h3>
+                <div class="facilities">
+                    <div class="facility-item">
+                        <img src="/img/Wifi.png" alt="Wifi"> Wifi
+                    </div>
+                    <div class="facility-item">
+                        <img src="/img/Location.png" alt="Location">
+                        <div>
+                            <span>Location</span>
+                            <span><?= esc($room['location']); ?></span>
+                        </div>
+                    </div>
+                    <div class="facility-item">
+                        <img src="/img/Projector.png" alt="Projector"> Projector
+                    </div>
+                    <div class="facility-item">
+                        <img src="/img/Cleaning.png" alt="Caraka">
+                        <div>
+                            <span>Caraka</span>
+                            <span><?= esc($room['caraka']); ?></span>
+                        </div>
+                    </div>
+                    <div class="facility-item">
+                        <img src="/img/AC.png" alt="AC"> AC
+                    </div>
+                </div>
+
+                <form action="<?= site_url('/save'); ?>" method="POST">
+                    <?= csrf_field(); ?> <!-- CSRF Protection for CodeIgniter -->
+                    <input type="hidden" name="room_name" value="<?= esc($room['name']); ?>">
+
+                    <h3>Select Date</h3>
+                    <div class="dates" id="dates"></div>
+                    <input type="hidden" name="selected_date" id="selected_date">
+
+                    <h3>Select Time</h3>
+                    <div class="schedule">
+                        <?php
+                        $times = [
+                            "07:00 - 08:00",
+                            "08:00 - 09:00",
+                            "09:00 - 10:00",
+                            "10:00 - 11:00",
+                            "11:00 - 12:00",
+                            "12:00 - 13:00",
+                            "13:00 - 14:00",
+                            "14:00 - 15:00",
+                            "15:00 - 16:00",
+                            "16:00 - 17:00"
+                        ];
+                        foreach ($times as $index => $time): ?>
+                            <input type="checkbox" id="time<?= $index ?>" name="selected_time[]" value="<?= $time ?>" class="btn-check">
+                            <label for="time<?= $index ?>"><?= $time ?></label>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <h3>Reason</h3>
+                    <textarea id="reason" name="reason" rows="4" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 5px; font-size: 14px; resize: none;" placeholder="Write your reason..."></textarea>
+
+                    <button type="submit" class="confirm">Submit</button>
+                </form>
+
+
+                <script>
+                    let index = 0;
+                    const slider = document.getElementById("slider");
+                    const images = document.querySelectorAll(".slider img").length;
+
+                    function updateSlider() {
+                        slider.style.transform = `translateX(-${index * 100}%)`;
+                    }
+
+                    function nextImage() {
+                        index = (index + 1) % images;
+                        updateSlider();
+                    }
+
+                    function prevImage() {
+                        index = (index - 1 + images) % images;
+                        updateSlider();
+                    }
+
+                    function generateDates() {
+                        const datesContainer = document.getElementById("dates");
+                        const today = new Date();
+
+                        for (let i = 0; i < 7; i++) {
+                            const date = new Date();
+                            date.setDate(today.getDate() + i);
+
+                            const button = document.createElement("div");
+                            button.classList.add("date-box");
+                            button.innerHTML = `<strong>${date.toLocaleDateString('id-ID', { weekday: 'long' })}</strong><br>${date.getDate()} ${date.toLocaleDateString('id-ID', { month: 'long' })}`;
+
+                            button.onclick = () => selectDate(button, date.toISOString().split('T')[0]); // Save YYYY-MM-DD format
+
+                            datesContainer.appendChild(button);
+                        }
+                    }
+
+                    function selectDate(button, formattedDate) {
+                        document.querySelectorAll(".date-box").forEach(el => el.classList.remove("selected"));
+                        button.classList.add("selected");
+
+                        // Assign selected date to hidden input
+                        document.getElementById("selected_date").value = formattedDate;
+                    }
+
+                    generateDates();
+                </script>
+</body>
+
+</html>
+
+<?= $this->endSection(); ?>
